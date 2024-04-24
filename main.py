@@ -33,10 +33,22 @@ def on_close_window(root, conn):
         conn.close()
     root.destroy()
 
+def fetch_scripts_from_database():
+    try:
+        conn = sqlite3.connect("scriptrun.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, path FROM SCRIPTS")
+        scripts = [f"{row[0]} : {row[1]}" for row in cursor.fetchall()]
+        conn.close()
+        return scripts
+    except Exception as e:
+        print(f"Error fetching scripts from database: {e}")
+        return []
+
 def main():
     root = tk.Tk()
-    root.title("GUI with Tabs")
-    root.geometry("400x300")
+    root.title("Python Script Manager")
+    root.geometry("800x600")
     
     # Create status bar
     status_bar = tk.Label(root, text="Ready", bd=1, relief=tk.SUNKEN, anchor=tk.W)
@@ -53,7 +65,7 @@ def main():
     tab_control.pack(expand=1, fill="both")
     
     # Populate tabs
-    create_run_tab(tab_control, conn)
+    create_run_tab(tab_control, fetch_scripts_from_database, status_bar, root)
     create_register_tab(tab_control, conn, status_bar)
     create_output_tab(tab_control, 'xxx', status_bar)
     
